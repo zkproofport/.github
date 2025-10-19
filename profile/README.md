@@ -1,3 +1,8 @@
+
+<div align="center">
+  <img width="300" height="300" alt="logo" src="https://github.com/user-attachments/assets/8e12dfee-e289-48bb-a7ee-b2b1dea0198d" />
+</div>
+
 # zkProofport — General-Purpose ZK Proof Portal
 
 zkProofport generates zero-knowledge proofs in the browser and delivers them to your dApp via postMessage. The portal requests only the inputs required by each circuit spec and does not force unnecessary account connections.
