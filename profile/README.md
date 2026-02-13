@@ -1,68 +1,86 @@
-
 <div align="center">
   <img width="300" height="300" alt="logo" src="https://github.com/user-attachments/assets/8e12dfee-e289-48bb-a7ee-b2b1dea0198d" />
 </div>
 
-# ZKProofport — General-Purpose ZK Proof Portal
+# ZKProofport — Privacy-First ZK Proof Infrastructure
 
-ZKProofport generates zero-knowledge proofs in the browser and delivers them to your dApp via postMessage. The portal requests only the inputs required by each circuit spec and does not force unnecessary account connections.
+ZKProofport is an **infrastructure and process** for zero-knowledge proofs. Through a circuit registry, proof portals, and SDKs, any type of ZK proof can be composed, generated, and verified — without exposing personal data.
 
-## Key Features
+## Architecture
 
-* Circuit-agnostic: given Noir metadata (JSON) and bytecode, the portal can execute the circuit client-side
-* Simple integration: `openPortal({ circuit })` to launch, receive `{ proof, publicInputs, meta }`
-* Dual verification paths: off-chain (UltraHonk) or on-chain (Verifier contract)
-* Minimal exposure: proof generation happens in browser memory; only the result is posted back once
-
-## First circuit in preparation
-
-* Coinbase KYC (in development)
-
-  * Circuit ID: `coinbase_kyc`
-  * Inputs: based on on-chain transaction/signature context
-  * Verification: off-chain (UltraHonk) and on-chain (Base Verifier)
-
-## Upcoming circuit examples
-
-* Email/domain affiliation proof: verify organizational membership from an email or issued token without revealing the address
-* Social follower threshold proof: verify “follower count ≥ N” via hashed OAuth snapshot and ZK proof, without exposing raw data
-
-These circuits request only the minimum inputs required by their specs. Wallet connection is currently relevant only to the Coinbase KYC circuit.
-
-## dApp integration example
-
-```ts
-import { openPortal, verifyOffchain, verifyOnchain } from '@zkproofport/sdk';
-import { JsonRpcProvider } from 'ethers';
-
-const payload = await openPortal({ circuit: 'coinbase_kyc' });
-
-const okOff = await verifyOffchain({
-  proofHex: payload.proof,
-  publicInputs: payload.publicInputs,
-  circuitUrl: 'https://raw.githubusercontent.com/hsy822/zk-coinbase-attestor/develop/packages/circuit/target/zk_coinbase_attestor.json',
-  threads: 1,
-  keccak: true,
-});
-
-const okOn = await verifyOnchain({
-  proof: payload.proof,
-  publicInputs: payload.publicInputs,
-  verifierAddress: '0xB3705B6d33Fe7b22e86130Fa12592B308a191483',
-  provider: new JsonRpcProvider(process.env.NEXT_PUBLIC_BASE_RPC_URL),
-});
+```
+Circuit Registry → Proof Portal (Web / Mobile / Agent) → Relay → On-Chain Verification → SDK
 ```
 
-## Security principles
+| Component | Description | Status |
+|-----------|-------------|--------|
+| **Web Portal** | Browser-based ZK proof generation via iframe SDK | Live |
+| **Mobile Portal** | Client-side proving on device via mopro (Rust + Barretenberg) | Beta |
+| **Prover Agent** | AI agent proving via ERC-8004 identity + x402 payments + TEE | In Development |
+| **Relay Server** | Real-time proof request routing (Socket.IO + Redis) | Live |
+| **On-Chain Verifiers** | UltraHonk verification contracts on EVM chains | Deployed (Base Sepolia) |
+| **Nullifier Registry** | Sybil-resistant nullifier tracking on-chain | Deployed |
 
-* Minimal input collection: only what the circuit requires
-* Session metadata: includes origin, nonce, timestamp to prevent replay and validate source
-* Cross-validation: compare off-chain and on-chain results for consistency where applicable
+## Circuits (CIPs)
+
+Circuits follow the [CIP (Circuit Improvement Proposal)](https://github.com/zkproofport/CIPs) standard — an open governance for ZK circuit standards, inspired by [EIPs](https://github.com/ethereum/EIPs).
+
+| CIP | Circuit | Category | Status |
+|-----|---------|----------|--------|
+| [CIP-1](https://github.com/zkproofport/CIPs/blob/main/CIPS/cip-1.md) | Coinbase KYC Attestation | Identity | Review |
+| [CIP-2](https://github.com/zkproofport/CIPs/blob/main/CIPS/cip-2.md) | Coinbase Country Attestation | Identity | Review |
+
+**Circuit language**: Noir (Aztec)  
+**Proof system**: Barretenberg UltraHonk  
+**Mobile proving**: mopro (Rust FFI)
+
+## Key Design Decisions
+
+- **Client-side proving**: Proofs are generated on user's device (browser or mobile), never on a server
+- **Circuit-agnostic infrastructure**: The portal, relay, and SDK work with any Noir circuit
+- **Nullifier-based sybil resistance**: Each proof generates a scoped nullifier registered on-chain
+- **Dual verification**: Off-chain (`@aztec/bb.js`) and on-chain (Verifier contracts)
+
+## SDK Integration
+
+```ts
+import { ProofportSDK } from '@zkproofport-app/sdk';
+
+const sdk = new ProofportSDK({
+  defaultCallbackUrl: 'https://myapp.com/verify'
+});
+
+// Request a proof via mobile deep link or QR code
+const request = sdk.createProofRequest({
+  circuit: 'coinbase_attestation',
+  scope: 'myapp.xyz'
+});
+const { deepLink, qrDataUrl } = await sdk.requestProof(request);
+```
+
+## On-Chain Contracts (Base Sepolia)
+
+| Contract | Address |
+|----------|---------|
+| CoinbaseAttestation Verifier | [`0xEb9eb5452790Cfe549fF83CEB3Dbe1C432231492`](https://sepolia.basescan.org/address/0xEb9eb5452790Cfe549fF83CEB3Dbe1C432231492) |
+| CoinbaseCountryAttestation Verifier | [`0xD0F3eE648386B59B484157332E736388Fcc41F47`](https://sepolia.basescan.org/address/0xD0F3eE648386B59B484157332E736388Fcc41F47) |
+| Nullifier Registry | [`0xC6a8dC34B1872a883aFCc808C90c31c038764d9a`](https://sepolia.basescan.org/address/0xC6a8dC34B1872a883aFCc808C90c31c038764d9a) |
+
+## Grants & Recognition
+
+- **Base Batches 002** — Top 50 out of 900+ teams (Builder Track), currently incubating
+- **Aztec Noir Grant** — Circuit development funding
 
 ## Links
 
-* Portal: [https://zkproofport.com/portal](https://zkproofport.com/portal)
-* Demo: [https://proofport-demo.netlify.app/](https://proofport-demo.netlify.app/)
-* NPM: [@zkproofport/sdk](https://www.npmjs.com/package/@zkproofport/sdk)
-* GitHub: [https://github.com/zkproofport](https://github.com/zkproofport)
-* Coinbase-KYC Verifier (Base): [0xB3705B6d33Fe7b22e86130Fa12592B308a191483](https://basescan.org/address/0xB3705B6d33Fe7b22e86130Fa12592B308a191483#code)
+| | |
+|---|---|
+| 🌐 Portal | [zkproofport.com](https://zkproofport.com) |
+| 🤖 Prover Agent | [proveragent.eth.limo](https://proveragent.eth.limo) |
+| 📋 CIPs | [github.com/zkproofport/CIPs](https://github.com/zkproofport/CIPs) |
+| 📦 SDK (App) | [@zkproofport-app/sdk](https://www.npmjs.com/package/@zkproofport-app/sdk) |
+| 📦 SDK (Web) | [@zkproofport/sdk](https://www.npmjs.com/package/@zkproofport/sdk) |
+
+## License
+
+All CIPs are released under [CC0](https://creativecommons.org/publicdomain/zero/1.0/).
