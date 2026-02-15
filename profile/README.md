@@ -11,7 +11,7 @@ ZKProofport is an **infrastructure and process** for zero-knowledge proofs. Thro
 ```
 Circuit Registry → Proof Portal (Web / Mobile / Agent) → Relay → On-Chain Verification → SDK
 ```
-<img width="765" height="766" alt="flow" src="https://github.com/user-attachments/assets/3f284d4b-8e86-4e7f-b436-eeefaeb144dc" />
+<img width="763" height="764" alt="flow" src="https://github.com/user-attachments/assets/62ad4c11-a6c7-4079-a145-72820a251308" />
 
 | Component | Description | Status |
 |-----------|-------------|--------|
