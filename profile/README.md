@@ -11,14 +11,13 @@ ZKProofport is an **infrastructure and process** for zero-knowledge proofs. Thro
 ```
 Circuit Registry → Proof Portal (Web / Mobile / Agent) → Relay → On-Chain Verification → SDK
 ```
-
-![flow](https://github.com/user-attachments/assets/d187ee4b-4eae-44fd-911c-e85d257d1be2)
+<img width="765" height="766" alt="flow" src="https://github.com/user-attachments/assets/3f284d4b-8e86-4e7f-b436-eeefaeb144dc" />
 
 | Component | Description | Status |
 |-----------|-------------|--------|
 | **Web Portal** | Browser-based ZK proof generation via iframe SDK | Live |
 | **Mobile Portal** | Client-side proving on device via mopro (Rust + Barretenberg) | Beta |
-| **Prover Agent** | AI agent proving via ERC-8004 identity + ERC-8128 request + x402 payments + TEE | In Development |
+| **Prover Agent** | AI agent proving via ERC-8004 identity + x402 payments + TEE | In Development |
 | **Relay Server** | Real-time proof request routing (Socket.IO + Redis) | Live |
 | **On-Chain Verifiers** | UltraHonk verification contracts on EVM chains | Deployed (Base Sepolia) |
 | **Nullifier Registry** | Sybil-resistant nullifier tracking on-chain | Deployed |
