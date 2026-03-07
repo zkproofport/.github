@@ -19,8 +19,7 @@ Circuit Registry → Proof Portal (Web / Mobile / Agent) → Relay → On-Chain 
 | **Mobile Portal** | Client-side proving on device via mopro (Rust + Barretenberg) | Beta |
 | **Prover Agent** | AI agent proving via ERC-8004 identity + x402 payments + TEE | In Development |
 | **Relay Server** | Real-time proof request routing (Socket.IO + Redis) | Live |
-| **On-Chain Verifiers** | UltraHonk verification contracts on EVM chains | Deployed (Base Sepolia) |
-| **Nullifier Registry** | Sybil-resistant nullifier tracking on-chain | Deployed |
+| **On-Chain Verifiers** | UltraHonk verification contracts on EVM chains | Deployed (Base) |
 
 ## Circuits (CIPs)
 
@@ -40,7 +39,7 @@ Circuits follow the [CIP (Circuit Improvement Proposal)](https://github.com/zkpr
 
 - **Client-side proving**: Proofs are generated on user's device (browser or mobile), never on a server
 - **Circuit-agnostic infrastructure**: The portal, relay, and SDK work with any Noir circuit
-- **Nullifier-based sybil resistance**: Each proof generates a scoped nullifier registered on-chain
+- **Nullifier-based sybil resistance**: Each proof generates a scoped nullifier for duplicate detection
 - **Dual verification**: Off-chain (`@aztec/bb.js`) and on-chain (Verifier contracts)
 
 ## SDK Integration
@@ -62,11 +61,17 @@ const { deepLink, qrDataUrl } = await sdk.requestProof(request);
 
 ## On-Chain Contracts (Base Sepolia)
 
+### Base Mainnet
+| Contract | Address |
+|----------|---------|
+| CoinbaseAttestation Verifier | [`0xF7dED73E7a7fc8fb030c35c5A88D40ABe6865382`](https://basescan.org/address/0xF7dED73E7a7fc8fb030c35c5A88D40ABe6865382) |
+| CoinbaseCountryAttestation Verifier | [`0xF3D5A09d2C85B28C52EF2905c1BE3a852b609D0C`](https://basescan.org/address/0xF3D5A09d2C85B28C52EF2905c1BE3a852b609D0C) |
+
+### Base Sepolia
 | Contract | Address |
 |----------|---------|
 | CoinbaseAttestation Verifier | [`0xEb9eb5452790Cfe549fF83CEB3Dbe1C432231492`](https://sepolia.basescan.org/address/0xEb9eb5452790Cfe549fF83CEB3Dbe1C432231492) |
 | CoinbaseCountryAttestation Verifier | [`0xD0F3eE648386B59B484157332E736388Fcc41F47`](https://sepolia.basescan.org/address/0xD0F3eE648386B59B484157332E736388Fcc41F47) |
-| Nullifier Registry | [`0xC6a8dC34B1872a883aFCc808C90c31c038764d9a`](https://sepolia.basescan.org/address/0xC6a8dC34B1872a883aFCc808C90c31c038764d9a) |
 
 ## Grants & Recognition
 
